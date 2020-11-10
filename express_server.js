@@ -1,7 +1,14 @@
 const express = require('express');
 const app = express();
 const PORT = 8080;
+const bodyParser = require('body-parser');
 
+const generateRandomString = () => {
+  const randomChar = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  return [...Array(6)].reduce(a => a + randomChar[~~(Math.random() * randomChar.length)],'');
+};
+
+app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine', 'ejs');
 
 app.get('/', (req, res) => {
@@ -35,6 +42,10 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show', templateVar);
 });
 
+app.post('/urls', (req, res) => {
+  console.log(req.body);
+  res.send('ok');
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
