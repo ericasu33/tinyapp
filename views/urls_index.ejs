@@ -14,12 +14,13 @@
 
   <main style="margin: 1em;">
     <section id="url_index_table">
-      <h3> My URLs Index</h3>
+      <h3>My URLs Index</h3>
       <table class="table">
         <thead>
           <tr>
             <th scope="col">Short URL</th>
             <th scope="col">Original URL</th>
+            <th scope="col">Edit</th>
             <th scope="col">Delete</th>
           </tr>
         </thead>
@@ -28,6 +29,11 @@
           <tr>
               <td><%= shortURL %></td>
               <td><%= urls[shortURL] %></td>
+              <td>
+                <form method="GET" action="/urls/<%= shortURL %>">
+                  <input style="background-color:white;border-color:blue;border-radius: 5px; padding: 0.4rem;color:blue;" type="submit" value="Edit"/>
+                </form>
+              </td>
               <td>
                 <form method="POST" action="/urls/<%= shortURL %>/delete">
                   <input style="background-color:white;border-color:red;border-radius: 5px; padding: 0.4rem;color:red;" type="submit" value="Delete"/>
@@ -40,7 +46,7 @@
     </section>
     
     <section id="" class="nav">
-      <a href = "/urls/new"> Shorten a new URL </a>
+      <a href = "/urls/new">Shorten a new URL</a>
     </section>
     
     
