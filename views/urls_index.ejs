@@ -20,13 +20,19 @@
           <tr>
             <th scope="col">Short URL</th>
             <th scope="col">Original URL</th>
+            <th scope="col">Delete</th>
           </tr>
         </thead>
         <tbody>
-          <% for (const key in urls) { %>
+          <% for (const shortURL in urls) { %>
           <tr>
-              <td><%= key %></td>
-              <td><%= urls[key] %></td>
+              <td><%= shortURL %></td>
+              <td><%= urls[shortURL] %></td>
+              <td>
+                <form method="POST" action="/urls/<%= shortURL %>/delete">
+                  <input style="background-color:white;border-color:red;border-radius: 5px; padding: 0.4rem;color:red;" type="submit" value="Delete"/>
+                </form>
+              </td>
           </tr>
           <% } %>
         </tbody>
