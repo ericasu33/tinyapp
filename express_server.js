@@ -87,6 +87,10 @@ app.get('/urls/invalidURL', (req, res) => {
 });
 
 //-----EDIT-----
+app.post('/urls/:shortURL', (req, res) => {
+  urlDatabase[req.params.shortURL] = req.body.longURL;
+  res.redirect('/urls');
+});
 
 //-----ADD-----
 //Adds the new shorten URL to the database
@@ -109,11 +113,14 @@ app.post('/urls', (req, res) => {
 });
 
 //-----DELETE-----
-//
+//Removes the shortened URL from the index
 app.post('/urls/:shortURL/delete', (req, res) => {
   delete urlDatabase[req.params.shortURL]; //=> create a separate function?
   res.redirect('/urls');
 });
+
+
+//Shows 404 Error
 app.use((req, res) => {
   res.status(404).render('error_404');
 });
