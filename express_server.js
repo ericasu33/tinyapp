@@ -17,10 +17,8 @@ const isUrl = str => {
   }
 };
 
-
-app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine', 'ejs');
-
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("views"));
 
 app.get('/', (req, res) => {
@@ -40,12 +38,6 @@ const urlDatabase = {
   '9sm5xK': 'http://www.google.com'
 };
 
-// app.get('/:id', (req, res) =>  {
-//   if (res.statusCode === 404) {
-//     res.render('error_404');
-//   }
-// });
-
 app.get('/urls', (req, res) => {
   const templateVar = { urls: urlDatabase };
   res.render('urls_index', templateVar);
@@ -56,12 +48,29 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  const templateVar = { shortURL: req.params.shortURL, longURL:urlDatabase[req.params.shortURL]};
+  const templateVar = {
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL]
+  };
+  
   if (templateVar.longURL === undefined) {
     res.status(404).render('error_404');
     // res.redirect('error');   //-> why we don't need /urls/ here?
   } else {
     res.render('urls_show', templateVar);
+  }
+});
+
+app.get('/urls/invalidURL', (req, res) => {
+  res.render('error_invalidURL');
+});
+
+app.get('/u/:shortURL', (req, res) => {
+  const templateVar = { longURL: urlDatabase[req.params.shortURL] };
+  if (templateVar.longURL === undefined) {
+    res.status(404).render('error_404');
+  } else {
+    res.redirect(templateVar.longURL);
   }
 });
 
@@ -83,22 +92,11 @@ app.post('/urls', (req, res) => {
 
 });
 
-app.get('/u/:shortURL', (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
-});
 
-app.get('/urls/404', (req, res) => {
-  res.render('error_404');
-});
-
-app.get('*', (req, res) => {
+app.use((req, res) => {
   res.status(404).render('error_404');
 });
 
-app.get('/urls/invalidURL', (req, res) => {
-  res.render('error_invalidURL');
-});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
