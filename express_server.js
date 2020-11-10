@@ -43,8 +43,22 @@ app.get('/urls/:shortURL', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
-  console.log(req.body);
-  res.send('ok');
+  const shortURL = generateRandomString();
+  const longURL = req.body.longURL;
+  
+  if (longURL.startsWith('http')) {
+    urlDatabase[shortURL] = longURL;
+  } else {
+    urlDatabase[shortURL] = `http://${longURL}`;
+  }
+
+  res.redirect(`/urls/${shortURL}`);
+});
+
+
+app.get('/u/:shortURL', (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
 });
 
 app.listen(PORT, () => {
