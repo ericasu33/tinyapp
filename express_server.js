@@ -17,10 +17,20 @@ const isUrl = str => {
   }
 };
 
+const urlDatabase = {
+  'b2xVn2': 'http://www.lighthouselabs.ca',
+  '9sm5xK': 'http://www.google.com'
+};
+
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("views"));
 
+//BREAD
+
+//----BROWSE----
+
+//Home
 app.get('/', (req, res) => {
   res.send('Hello!');
 });
@@ -33,26 +43,26 @@ app.get('/', (req, res) => {
 //   res.send('<html><body>Hello <b> World </b></body></html>\n');
 // });
 
-const urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.com'
-};
-
+//Index Page
 app.get('/urls', (req, res) => {
   const templateVar = { urls: urlDatabase };
   res.render('urls_index', templateVar);
 });
 
+//Shorten New URL Page
 app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
 
+//----READ----
+
+//Individual shortened URL Page
 app.get('/urls/:shortURL', (req, res) => {
   const templateVar = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]
   };
-  
+
   if (templateVar.longURL === undefined) {
     res.status(404).render('error_404');
     // res.redirect('error');   //-> why we don't need /urls/ here?
@@ -61,10 +71,7 @@ app.get('/urls/:shortURL', (req, res) => {
   }
 });
 
-app.get('/urls/invalidURL', (req, res) => {
-  res.render('error_invalidURL');
-});
-
+//Redirects user to the original URL page linked to the shortURL
 app.get('/u/:shortURL', (req, res) => {
   const templateVar = { longURL: urlDatabase[req.params.shortURL] };
   if (templateVar.longURL === undefined) {
@@ -74,6 +81,15 @@ app.get('/u/:shortURL', (req, res) => {
   }
 });
 
+//Redirected page for invalid URL
+app.get('/urls/invalidURL', (req, res) => {
+  res.render('error_invalidURL');
+});
+
+//-----EDIT-----
+
+//-----ADD-----
+//Adds the new shorten URL to the database
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
   const longURL = req.body.longURL;
@@ -92,7 +108,12 @@ app.post('/urls', (req, res) => {
 
 });
 
-
+//-----DELETE-----
+//
+app.post('/urls/:shortURL/delete', (req, res) => {
+  delete urlDatabase[req.params.shortURL]; //=> create a separate function?
+  res.redirect('/urls');
+});
 app.use((req, res) => {
   res.status(404).render('error_404');
 });
