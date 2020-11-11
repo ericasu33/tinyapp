@@ -10,6 +10,16 @@ app.use(express.static("views"));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
+app.use((req, res, next) => {
+  if (req.cookie) {
+    res.locals.user = req.cookies.user_id;
+    res.locals.email = users[res.locals.user].email;
+  } else {
+    res.locals.user = 0;
+    res.locals.email = 0;
+  }
+  next();
+});
 
 //===========
 //   URL
@@ -27,34 +37,25 @@ app.get('/', (req, res) => {
 app.get('/urls', (req, res) => {
   const templateVar = {
     urls: urlDatabase,
-    user: users[req.cookies.user_id],
   };
   res.render('urls_index', templateVar);
 });
 
 //Shorten New URL Page
 app.get('/urls/new', (req, res) => {
-  const templateVar = {
-    user: users[req.cookies.user_id],
-  };
-  res.render('urls_new', templateVar);
+  res.render('urls_new');
 });
 
 //----READ----
 
 //Redirected page for invalid URL
 app.get('/urls/invalidURL', (req, res) => {
-  const templateVar = {
-    user: users[req.cookies.user_id],
-  };
-
-  res.render('error_invalidURL', templateVar);
+  res.render('error_invalidURL');
 });
 
 //Individual shortened URL Page
 app.get('/urls/:shortURL', (req, res) => {
   const templateVar = {
-    user: users[req.cookies.user_id],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]
   };

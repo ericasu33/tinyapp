@@ -10,16 +10,17 @@ app.use(express.static("views"));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
+app.use((req, res, next) => {
+  res.locals.user = req.cookies.user_id;
+  next();
+});
 
 //=============
 //   Register
 //=============
-app.get('/register', (req, res) => {
-  const templateVar = {
-    user: users[req.cookies.user_id],
-  };
 
-  res.render('registration', templateVar);
+app.get('/register', (req, res) => {
+  res.render('registration');
 });
 
 app.post('/register', (req, res) => {
