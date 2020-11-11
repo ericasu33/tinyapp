@@ -15,7 +15,7 @@ app.use(cookieParser());
 //=============
 
 app.get('/register', (req, res) => {
-  res.render('registration');
+  res.render('register');
 });
 
 app.post('/register', (req, res) => {
@@ -40,6 +40,10 @@ app.post('/register', (req, res) => {
 //=============
 //   LOGIN
 //=============
+
+app.get('/login', (req, res) => {
+  res.render('login');
+});
 
 app.post('/login', (req, res) => {
   res.redirect('/urls');
