@@ -3,7 +3,7 @@ const app = module.exports = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
-const { generateRandomString, isUrl, urlDatabase } = require('../helper');
+const { generateRandomString, isUrl, urlDatabase, users } = require('../helper');
 
 app.set('view engine', 'ejs');
 app.use(express.static("views"));
@@ -27,14 +27,16 @@ app.get('/', (req, res) => {
 app.get('/urls', (req, res) => {
   const templateVar = {
     urls: urlDatabase,
-    username: req.cookies.username
+    user: users[req.cookies.user_id],
   };
   res.render('urls_index', templateVar);
 });
 
 //Shorten New URL Page
 app.get('/urls/new', (req, res) => {
-  const templateVar = { username: req.cookies.username };
+  const templateVar = {
+    user: users[req.cookies.user_id],
+  };
   res.render('urls_new', templateVar);
 });
 
@@ -43,16 +45,16 @@ app.get('/urls/new', (req, res) => {
 //Redirected page for invalid URL
 app.get('/urls/invalidURL', (req, res) => {
   const templateVar = {
-    username: req.cookies.username,
+    user: users[req.cookies.user_id],
   };
 
-  res.render('../views/error_invalidURL', templateVar);
+  res.render('error_invalidURL', templateVar);
 });
 
 //Individual shortened URL Page
 app.get('/urls/:shortURL', (req, res) => {
   const templateVar = {
-    username: req.cookies.username,
+    user: users[req.cookies.user_id],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL]
   };
@@ -67,7 +69,10 @@ app.get('/urls/:shortURL', (req, res) => {
 
 //Redirects user to the original URL page linked to the shortURL
 app.get('/u/:shortURL', (req, res) => {
-  const templateVar = { longURL: urlDatabase[req.params.shortURL] };
+  const templateVar = {
+    longURL: urlDatabase[req.params.shortURL]
+  };
+
   if (templateVar.longURL === undefined) {
     res.status(404).render('error_404');
   } else {
