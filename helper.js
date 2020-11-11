@@ -17,11 +17,11 @@ const urlDatabase = {
   '9sm5xK': 'http://www.google.com'
 };
 
-const users = {};
+const userDb = {};
 
 module.exports = {
   generateRandomString,
   isUrl,
   urlDatabase,
-  users,
+  userDb,
 };
