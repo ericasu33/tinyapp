@@ -1,9 +1,9 @@
 const express = require('express');
-const app = module.exports = express();
+const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
-const { generateRandomString, registerUser, emailExist } = require('../helper');
+const { generateRandomString, registerUser, isUser } = require('../helper');
 
 app.set('view engine', 'ejs');
 app.use(express.static("views"));
@@ -27,7 +27,7 @@ app.post('/register', (req, res) => {
     return res.status(400).send('Incorret Email or Password Entered');
   }
 
-  if (emailExist(email)) {
+  if (isUser(email)) {
     return res.status(400).send('Email already registered');
   }
 
@@ -46,7 +46,22 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  const user = isUser(email);
+
+  if (!user) {
+    return res.status(403).send('Invalid email/password');
+  }
+
+  if (user.password !== password) {
+    return res.status(403).send('Invalid email/password');
+  }
+
+  res.cookie('user_id', user.id);
   res.redirect('/urls');
+  
+
 });
 
 //=============
@@ -57,3 +72,6 @@ app.post('/logout', (req, res) => {
   res.clearCookie('user_id');
   res.redirect('/urls');
 });
+
+
+module.exports = app;
