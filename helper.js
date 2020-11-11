@@ -21,7 +21,17 @@ const userDb = {};
 
 const registerUser = (id, email, password) => {
   const user = { id, email, password };
-  userDb[id] = user;
+  return userDb[id] = user;
+};
+
+const emailExist = (email) => {
+  let exist = false;
+  for (const id in userDb) {
+    if (userDb[id].email === email) {
+      exist = true;
+    }
+  }
+  return exist;
 };
 
 module.exports = {
@@ -30,4 +40,5 @@ module.exports = {
   urlDatabase,
   userDb,
   registerUser,
+  emailExist,
 };

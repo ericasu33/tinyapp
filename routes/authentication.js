@@ -3,7 +3,7 @@ const app = module.exports = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
-const { generateRandomString, userDb, registerUser } = require('../helper');
+const { generateRandomString, registerUser, emailExist } = require('../helper');
 
 app.set('view engine', 'ejs');
 app.use(express.static("views"));
@@ -23,12 +23,18 @@ app.post('/register', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
+  if (!email || !password) {
+    return res.status(400).send('Incorret Email or Password Entered');
+  }
+
+  if (emailExist(email)) {
+    return res.status(400).send('Email already registered');
+  }
+
   registerUser(id, email, password);
 
   res.cookie('user_id', id);
   res.redirect('/urls');
-
-  console.log(userDb[id]);
 });
 
 //=============
