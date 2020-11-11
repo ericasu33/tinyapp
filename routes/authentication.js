@@ -3,7 +3,7 @@ const app = module.exports = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
-const { generateRandomString, userDb } = require('../helper');
+const { generateRandomString, userDb, registerUser } = require('../helper');
 
 app.set('view engine', 'ejs');
 app.use(express.static("views"));
@@ -23,11 +23,12 @@ app.post('/register', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  const user = { id, email, password };
-  userDb[id] = user;
+  registerUser(id, email, password);
 
   res.cookie('user_id', id);
   res.redirect('/urls');
+
+  console.log(userDb[id]);
 });
 
 //=============

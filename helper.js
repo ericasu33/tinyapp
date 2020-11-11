@@ -19,9 +19,15 @@ const urlDatabase = {
 
 const userDb = {};
 
+const registerUser = (id, email, password) => {
+  const user = { id, email, password };
+  userDb[id] = user;
+};
+
 module.exports = {
   generateRandomString,
   isUrl,
   urlDatabase,
   userDb,
+  registerUser,
 };
