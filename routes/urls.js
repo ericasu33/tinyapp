@@ -98,19 +98,16 @@ app.post('/urls/:shortURL', (req, res) => {
 //Adds the new shorten URL to the database
 app.post('/urls', (req, res) => {
   const shortURL = generateRandomString();
-  const longURL = req.body.longURL;
+  let longURL = req.body.longURL;
 
-  if (longURL.startsWith('http') && isUrl(urlDatabase[shortURL])) {
-    urlDatabase[shortURL] = longURL;
-    res.redirect(`/urls/${shortURL}`);
-  } else {
-    urlDatabase[shortURL] = `http://${longURL}`;
+  if (!longURL.startsWith('http')) {
+    longURL = `http://${longURL}`;
   }
 
-  if (!isUrl(urlDatabase[shortURL])) {
-    delete urlDatabase[shortURL];
+  if (!isUrl(longURL)) {
     res.redirect('/urls/invalidURL');
   } else {
+    urlDatabase[shortURL] = longURL;
     res.redirect(`/urls/${shortURL}`);
   }
 
