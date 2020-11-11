@@ -3,17 +3,12 @@ const app = module.exports = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
-const { generateRandomString, users } = require('../helper');
+const { generateRandomString, userDb } = require('../helper');
 
 app.set('view engine', 'ejs');
 app.use(express.static("views"));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
-
-app.use((req, res, next) => {
-  res.locals.user = req.cookies.user_id;
-  next();
-});
 
 //=============
 //   Register
@@ -25,16 +20,14 @@ app.get('/register', (req, res) => {
 
 app.post('/register', (req, res) => {
   const id = generateRandomString();
-  users[id] = {
-    id,
-    email: req.body.email,
-    password: req.body.password
-  };
+  const email = req.body.email;
+  const password = req.body.password;
+
+  const user = { id, email, password };
+  userDb[id] = user;
+
   res.cookie('user_id', id);
   res.redirect('/urls');
-
-  console.log(users);
-
 });
 
 //=============
