@@ -33,11 +33,17 @@ app.use(cookieParser());
 //   LOGIN
 //===========
 
-//-----ADD-----
-
-//Username
 app.post('/login', (req, res) => {
-  res.cookie("username", req.body.username);
+  res.cookie('username', req.body.username);
+  res.redirect('/urls');
+});
+
+//===========
+//   LOGOUT
+//===========
+
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
   res.redirect('/urls');
 });
 
