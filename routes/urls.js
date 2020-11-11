@@ -63,10 +63,10 @@ app.get('/urls/:shortURL', (req, res) => {
   };
   
   if (templateVar.longURL === undefined) {
-    res.status(404).render('error_404');
-  } else {
-    res.render('urls_show', templateVar);
+    return res.status(404).render('error_404');
   }
+
+  res.render('urls_show', templateVar);
 });
 
 //Redirects user to the original URL page linked to the shortURL
@@ -76,10 +76,10 @@ app.get('/u/:shortURL', (req, res) => {
   };
 
   if (templateVar.longURL === undefined) {
-    res.status(404).render('error_404');
-  } else {
-    res.redirect(templateVar.longURL);
+    return res.status(404).render('error_404');
   }
+
+  res.redirect(templateVar.longURL);
 });
 
 
@@ -89,11 +89,11 @@ app.post('/urls/:shortURL', (req, res) => {
   const longURL = req.body.longURL;
 
   if (!isUrl(longURL)) {
-    res.redirect('/urls/invalidURL');
-  } else {
-    urlDatabase[shortURL] = req.body.longURL;
-    res.redirect(`/urls/${shortURL}`);
+    return res.redirect('/urls/invalidURL');
   }
+
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect(`/urls/${shortURL}`);
 });
 
 //-----ADD-----
@@ -107,12 +107,11 @@ app.post('/urls', (req, res) => {
   }
 
   if (!isUrl(longURL)) {
-    res.redirect('/urls/invalidURL');
-  } else {
-    urlDatabase[shortURL] = longURL;
-    res.redirect(`/urls/${shortURL}`);
+    return res.redirect('/urls/invalidURL');
   }
 
+  urlDatabase[shortURL] = longURL;
+  res.redirect(`/urls/${shortURL}`);
 });
 
 //-----DELETE-----
