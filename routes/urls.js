@@ -3,7 +3,7 @@ const app = module.exports = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
-const { generateRandomString, isUrl, urlDatabase, users } = require('../helper');
+const { generateRandomString, isUrl, urlDatabase, userDb } = require('../helper');
 
 app.set('view engine', 'ejs');
 app.use(express.static("views"));
@@ -11,12 +11,14 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
 app.use((req, res, next) => {
-  if (req.cookie) {
+  if (req.cookies.user_id) {
     res.locals.user = req.cookies.user_id;
-    res.locals.email = users[res.locals.user].email;
+    res.locals.email = userDb[res.locals.user].email;
   } else {
-    res.locals.user = 0;
-    res.locals.email = 0;
+    req.cookies = {
+      user_id: null,
+      email: null,
+    };
   }
   next();
 });
@@ -61,7 +63,6 @@ app.get('/urls/:shortURL', (req, res) => {
   };
   
   if (templateVar.longURL === undefined) {
-    console.log("HEYYYYYY");
     res.status(404).render('error_404');
   } else {
     res.render('urls_show', templateVar);
