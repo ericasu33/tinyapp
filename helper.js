@@ -13,8 +13,8 @@ const isUrl = str => {
 };
 
 const urlDatabase = {
-  'b2xVn2': 'http://www.lighthouselabs.ca',
-  '9sm5xK': 'http://www.google.com'
+  'b2xVn2': { longURL: 'http://www.lighthouselabs.ca', userID:'aJ481w' },
+  '9sm5xK': { longURL: 'http://www.google.com', userID:'aJ481W'},
 };
 
 const userDb = {};
@@ -24,7 +24,7 @@ const registerUser = (id, email, password) => {
   return userDb[id] = user;
 };
 
-const isUser = (email) => {
+const isUser = email => {
   let registered;
   for (const id in userDb) {
     if (userDb[id].email === email) {
@@ -34,6 +34,16 @@ const isUser = (email) => {
   return registered;
 };
 
+const urlsForUser = userID => {
+  let urlDbByUser = {};
+  for (const shortURL in urlDatabase) {
+    if (userDb[userID].id === urlDatabase[shortURL].userID) {
+      urlDbByUser[shortURL] = urlDatabase[shortURL].longURL;
+    }
+  }
+  return urlDbByUser;
+};
+
 module.exports = {
   generateRandomString,
   isUrl,
@@ -41,4 +51,5 @@ module.exports = {
   userDb,
   registerUser,
   isUser,
+  urlsForUser,
 };
