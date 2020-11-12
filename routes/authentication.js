@@ -15,22 +15,22 @@ app.get('/register', (req, res) => {
 
 app.post('/register', (req, res) => {
   const id = generateRandomString();
-  const email = req.body.email;
-  const password = req.body.password;
+  const { email, password } = req.body;
   const hashedPassword = bcrypt.hashSync(password, 10);
+  const user = isUser(email, userDb);
+
 
   if (!email || !password) {
     return res.status(400).send('Incorret Email or Password Entered');
   }
 
-  if (isUser(email)) {
+  if (user) {
     return res.status(400).send('Email already registered');
   }
 
-  registerUser(id, email, hashedPassword);
+  registerUser(id, email, hashedPassword, userDb);
 
   req.session.userID = id;
-  console.log(req.session.userID);
   res.redirect('/urls');
 });
 
@@ -43,22 +43,20 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
-  const user = isUser(email);
-
-  const hashedPassword = bcrypt.compareSync(password, user.password);
+  const { email, password } = req.body;
+  const user = isUser(email, userDb);
 
   if (!user) {
     return res.status(403).send('Invalid email/password');
   }
+
+  const hashedPassword = bcrypt.compareSync(password, user.password);
 
   if (!hashedPassword) {
     return res.status(403).send('Invalid email/password');
   }
 
   req.session.userID = user.id;
-  console.log(req.session.userID);
   res.redirect('/urls');
 });
 
