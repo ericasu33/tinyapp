@@ -3,7 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
-const { generateRandomString, registerUser, isUser } = require('../helper');
+const { generateRandomString, registerUser, isUser, userDb } = require('../helper');
 
 app.set('view engine', 'ejs');
 app.use(express.static("views"));
@@ -15,7 +15,7 @@ app.use(cookieParser());
 //=============
 
 app.get('/register', (req, res) => {
-  res.render('register');
+  res.render('register', { user: userDb[req.cookies.userID] });
 });
 
 app.post('/register', (req, res) => {
@@ -33,7 +33,7 @@ app.post('/register', (req, res) => {
 
   registerUser(id, email, password);
 
-  res.cookie('user_id', id);
+  res.cookie('userID', id);
   res.redirect('/urls');
 });
 
@@ -42,7 +42,7 @@ app.post('/register', (req, res) => {
 //=============
 
 app.get('/login', (req, res) => {
-  res.render('login');
+  res.render('login', { user: userDb[req.cookies.userID] });
 });
 
 app.post('/login', (req, res) => {
@@ -58,7 +58,7 @@ app.post('/login', (req, res) => {
     return res.status(403).send('Invalid email/password');
   }
 
-  res.cookie('user_id', user.id);
+  res.cookie('userID', user.id);
   res.redirect('/urls');
   
 
@@ -69,7 +69,7 @@ app.post('/login', (req, res) => {
 //=============
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id');
+  res.clearCookie('userID');
   res.redirect('/urls');
 });
 
