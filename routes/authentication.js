@@ -54,8 +54,6 @@ app.post('/login', (req, res) => {
 
   res.cookie('userID', user.id);
   res.redirect('/urls');
-  
-
 });
 
 //=============

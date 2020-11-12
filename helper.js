@@ -28,7 +28,7 @@ const isUser = email => {
   let registered;
   for (const id in userDb) {
     if (userDb[id].email === email) {
-      registered = userDb[id]; //an object
+      registered = userDb[id];
     }
   }
   return registered;
