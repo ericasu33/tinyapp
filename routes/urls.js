@@ -1,14 +1,7 @@
 const express = require('express');
 const app = express();
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 
 const { generateRandomString, isUrl, urlDatabase, userDb, urlsForUser } = require('../helper');
-
-app.set('view engine', 'ejs');
-app.use(express.static("views"));
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
 
 // app.use((req, res, next) => {
 //   if (req.cookies.userID) {

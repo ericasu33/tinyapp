@@ -1,14 +1,8 @@
 const express = require('express');
 const app = express();
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 
 const { generateRandomString, registerUser, isUser, userDb } = require('../helper');
 
-app.set('view engine', 'ejs');
-app.use(express.static("views"));
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
 
 //=============
 //   Register
