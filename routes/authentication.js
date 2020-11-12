@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const bcrypt = require('bcrypt');
 
 const { generateRandomString, registerUser, isUser, userDb } = require('../helper');
 
@@ -16,6 +17,7 @@ app.post('/register', (req, res) => {
   const id = generateRandomString();
   const email = req.body.email;
   const password = req.body.password;
+  const hashedPassword = bcrypt.hashSync(password, 10);
 
   if (!email || !password) {
     return res.status(400).send('Incorret Email or Password Entered');
@@ -25,7 +27,7 @@ app.post('/register', (req, res) => {
     return res.status(400).send('Email already registered');
   }
 
-  registerUser(id, email, password);
+  registerUser(id, email, hashedPassword);
 
   res.cookie('userID', id);
   res.redirect('/urls');
@@ -44,11 +46,13 @@ app.post('/login', (req, res) => {
   const password = req.body.password;
   const user = isUser(email);
 
+  const hashedPassword = bcrypt.compareSync(password, user.password);
+
   if (!user) {
     return res.status(403).send('Invalid email/password');
   }
 
-  if (user.password !== password) {
+  if (!hashedPassword) {
     return res.status(403).send('Invalid email/password');
   }
 
