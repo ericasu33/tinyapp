@@ -16,84 +16,137 @@ const { generateRandomString, isUrl, urlDatabase, userDb, urlsForUser } = requir
 //   next();
 // });
 
-//===========
-//   URL
-//===========
+// userDb[req.session.userID] - checks if user is logged in or not.
 
-//----BROWSE----
+//=============
+//   HOME
+//=============
 
-//Home
 app.get('/', (req, res) => {
-  res.send('Hello!');
+  if (userDb[req.session.userID]) {
+    return res.redirect('/urls');
+  }
+  res.redirect('login');
 });
 
+//===============
+//   URL Index
+//===============
 
-//Index Page
+//URL index with URLs that's linked to logged-in user's ID
 app.get('/urls', (req, res) => {
-  if (!userDb[req.session.userID]) {
+  const userID = req.session.userID;
+
+  if (!userDb[userID]) {
     return res.redirect('/login');
   }
 
-  const urls = urlsForUser(req.session.userID);
+  const urls = urlsForUser(userID, userDb);
+
   const templateVar = {
     urls,
-    user: userDb[req.session.userID],
+    user: userDb[userID],
   };
 
+  console.log(urls);
   res.render('urls_index', templateVar);
 });
 
+//===============
+//   New URL
+//===============
+
 //Shorten New URL Page
 app.get('/urls/new', (req, res) => {
-  if (!userDb[req.session.userID]) {
+  const userID = req.session.userID;
+
+  if (!userDb[userID]) {
     return res.redirect('/login');
   }
 
-  res.render('urls_new', { user: userDb[req.session.userID] });
+  res.render('urls_new', { user: userDb[userID] });
 });
 
-//----READ----
+//Adds newly shortened URL to the database
+app.post('/urls', (req, res) => {
+  const userID = req.session.userID;
+  const shortURL = generateRandomString();
+  let longURL = req.body.longURL;
+  const longDate = new Date();
+  const date = longDate.toLocaleString();
 
-//Redirected page for invalid URL
+  if (!longURL.startsWith('http')) {
+    longURL = `http://${longURL}`;
+  }
+
+  if (!isUrl(longURL)) {
+    return res.redirect('/urls/invalidURL');
+  }
+
+  //links the shortened URL by userID
+  urlDatabase[shortURL] = { longURL, userID, date };
+  res.redirect(`/urls/${shortURL}`);
+});
+
+//================
+//   Invalid URL
+//================
+
 app.get('/urls/invalidURL', (req, res) => {
-
-  res.render('error_invalidURL');
+  res.render('error_invalidURL', { user: userDb[req.session.userID] });
 });
+
+//====================
+//   Tiny URL Display
+//====================
 
 //Individual shortened URL Page
 app.get('/urls/:shortURL', (req, res) => {
-  const templateVar = {
-    user: userDb[req.session.userID],
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-  };
+  const shortURL = req.params.shortURL;
+  const userID = req.session.userID;
 
-  if (!userDb[req.session.userID]) {
+  if (!userDb[userID]) {
     return res.redirect('/login');
   }
-  
-  if (templateVar.longURL === undefined) {
+
+  //prevent logged-in user from directly entering random value in the browser
+  if (urlDatabase[shortURL] === undefined) {
     return res.status(404).render('error_404');
   }
+
+  const templateVar = {
+    user: userDb[userID],
+    shortURL,
+    longURL: urlDatabase[shortURL].longURL,
+  };
 
   res.render('urls_show', templateVar);
 });
 
-//Redirects user to the original URL page linked to the shortURL
-app.get('/u/:shortURL', (req, res) => {
-  const templateVar = {
-    longURL: urlDatabase[req.params.shortURL].longURL
-  };
+//================================
+//   Tiny URL -> Original Website
+//================================
 
-  if (templateVar.longURL === undefined) {
+//Redirects user to the original website linked to the shortURL
+app.get('/u/:shortURL', (req, res) => {
+  const shortURL = req.params.shortURL;
+
+  if (urlDatabase[shortURL] === undefined) {
     return res.status(404).render('error_404');
   }
+
+  const templateVar = {
+    longURL: urlDatabase[shortURL].longURL
+  };
 
   res.redirect(templateVar.longURL);
 });
 
+//=================
+//   Edit URL
+//=================
 
-//-----EDIT-----
+//edits the longURL thats assigned to a shortURL
 app.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
@@ -110,27 +163,10 @@ app.post('/urls/:shortURL', (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-//-----ADD-----
-//Adds the new shorten URL to the database
-app.post('/urls', (req, res) => {
-  const shortURL = generateRandomString();
-  let longURL = req.body.longURL;
+//=================
+//   Delete URL
+//=================
 
-  if (!longURL.startsWith('http')) {
-    longURL = `http://${longURL}`;
-  }
-
-  if (!isUrl(longURL)) {
-    return res.redirect('/urls/invalidURL');
-  }
-
-  urlDatabase[shortURL] = {};
-  urlDatabase[shortURL].longURL = longURL;
-  urlDatabase[shortURL].userID = req.session.userID;
-  res.redirect(`/urls/${shortURL}`);
-});
-
-//-----DELETE-----
 //Removes the shortened URL from the index
 app.post('/urls/:shortURL/delete', (req, res) => {
   if (!userDb[req.session.userID]) {
@@ -141,8 +177,9 @@ app.post('/urls/:shortURL/delete', (req, res) => {
   res.redirect('/urls');
 });
 
-
-//Shows 404 Error
+//=================
+//   404 Error
+//=================
 app.use((req, res) => {
   res.status(404).render('error_404');
 });
