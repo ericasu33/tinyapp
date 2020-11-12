@@ -1,27 +1,27 @@
 const express = require('express');
-const app = module.exports = express();
+const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
-const { generateRandomString, isUrl, urlDatabase, userDb } = require('../helper');
+const { generateRandomString, isUrl, urlDatabase, userDb, urlsForUser } = require('../helper');
 
 app.set('view engine', 'ejs');
 app.use(express.static("views"));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
-app.use((req, res, next) => {
-  if (req.cookies.user_id) {
-    res.locals.user = req.cookies.user_id;
-    res.locals.email = userDb[res.locals.user].email;
-  } else {
-    req.cookies = {
-      user_id: null,
-      email: null,
-    };
-  }
-  next();
-});
+// app.use((req, res, next) => {
+//   if (req.cookies.userID) {
+//     res.locals.user = req.cookies.userID;
+//     res.locals.email = userDb[res.locals.user].email;
+//   } else {
+//     req.cookies = {
+//       userID: null,
+//       email: null,
+//     };
+//   }
+//   next();
+// });
 
 //===========
 //   URL
@@ -37,30 +37,53 @@ app.get('/', (req, res) => {
 
 //Index Page
 app.get('/urls', (req, res) => {
+  if (!userDb[req.cookies.userID]) {
+    return res.redirect('/login');
+  }
+
+  const urls = urlsForUser(req.cookies.userID);
+
+  // console.log('URLS', urls);
+  // console.log('urlDB', urlDatabase);
+
   const templateVar = {
-    urls: urlDatabase,
+    urls,
+    user: userDb[req.cookies.userID],
   };
+
   res.render('urls_index', templateVar);
+
+  // console.log(userDb);
 });
 
 //Shorten New URL Page
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+  if (!userDb[req.cookies.userID]) {
+    return res.redirect('/login');
+  }
+
+  res.render('urls_new', { user: userDb[req.cookies.userID] });
 });
 
 //----READ----
 
 //Redirected page for invalid URL
 app.get('/urls/invalidURL', (req, res) => {
+
   res.render('error_invalidURL');
 });
 
 //Individual shortened URL Page
 app.get('/urls/:shortURL', (req, res) => {
   const templateVar = {
+    user: userDb[req.cookies.userID],
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL]
+    longURL: urlDatabase[req.params.shortURL].longURL,
   };
+
+  if (!userDb[req.cookies.userID]) {
+    return res.redirect('/login');
+  }
   
   if (templateVar.longURL === undefined) {
     return res.status(404).render('error_404');
@@ -72,7 +95,7 @@ app.get('/urls/:shortURL', (req, res) => {
 //Redirects user to the original URL page linked to the shortURL
 app.get('/u/:shortURL', (req, res) => {
   const templateVar = {
-    longURL: urlDatabase[req.params.shortURL]
+    longURL: urlDatabase[req.params.shortURL].longURL
   };
 
   if (templateVar.longURL === undefined) {
@@ -88,11 +111,15 @@ app.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
 
+  if (!userDb[req.cookies.userID]) {
+    return res.status(401).send('Unauthorized');
+  }
+
   if (!isUrl(longURL)) {
     return res.redirect('/urls/invalidURL');
   }
 
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL].longURL = longURL;
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -110,13 +137,19 @@ app.post('/urls', (req, res) => {
     return res.redirect('/urls/invalidURL');
   }
 
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL] = {};
+  urlDatabase[shortURL].longURL = longURL;
+  urlDatabase[shortURL].userID = req.cookies.userID;
   res.redirect(`/urls/${shortURL}`);
 });
 
 //-----DELETE-----
 //Removes the shortened URL from the index
 app.post('/urls/:shortURL/delete', (req, res) => {
+  if (!userDb[req.cookies.userID]) {
+    return res.status(401).send('Unauthorized');
+  }
+
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
 });
@@ -126,3 +159,5 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 app.use((req, res) => {
   res.status(404).render('error_404');
 });
+
+module.exports = app;
