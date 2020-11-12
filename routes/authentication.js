@@ -10,7 +10,7 @@ const { generateRandomString, registerUser, isUser, userDb } = require('../helpe
 //=============
 
 app.get('/register', (req, res) => {
-  res.render('register', { user: userDb[req.cookies.userID] });
+  res.render('register', { user: userDb[req.session.userID] });
 });
 
 app.post('/register', (req, res) => {
@@ -29,7 +29,8 @@ app.post('/register', (req, res) => {
 
   registerUser(id, email, hashedPassword);
 
-  res.cookie('userID', id);
+  req.session.userID = id;
+  console.log(req.session.userID);
   res.redirect('/urls');
 });
 
@@ -38,7 +39,7 @@ app.post('/register', (req, res) => {
 //=============
 
 app.get('/login', (req, res) => {
-  res.render('login', { user: userDb[req.cookies.userID] });
+  res.render('login', { user: userDb[req.session.userID] });
 });
 
 app.post('/login', (req, res) => {
@@ -56,7 +57,8 @@ app.post('/login', (req, res) => {
     return res.status(403).send('Invalid email/password');
   }
 
-  res.cookie('userID', user.id);
+  req.session.userID = user.id;
+  console.log(req.session.userID);
   res.redirect('/urls');
 });
 
@@ -65,7 +67,7 @@ app.post('/login', (req, res) => {
 //=============
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('userID');
+  req.session = null;
   res.redirect('/urls');
 });
 

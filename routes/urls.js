@@ -4,11 +4,11 @@ const app = express();
 const { generateRandomString, isUrl, urlDatabase, userDb, urlsForUser } = require('../helper');
 
 // app.use((req, res, next) => {
-//   if (req.cookies.userID) {
-//     res.locals.user = req.cookies.userID;
+//   if (req.session.userID) {
+//     res.locals.user = req.session.userID;
 //     res.locals.email = userDb[res.locals.user].email;
 //   } else {
-//     req.cookies = {
+//     req.session = {
 //       userID: null,
 //       email: null,
 //     };
@@ -30,32 +30,26 @@ app.get('/', (req, res) => {
 
 //Index Page
 app.get('/urls', (req, res) => {
-  if (!userDb[req.cookies.userID]) {
+  if (!userDb[req.session.userID]) {
     return res.redirect('/login');
   }
 
-  const urls = urlsForUser(req.cookies.userID);
-
-  // console.log('URLS', urls);
-  // console.log('urlDB', urlDatabase);
-
+  const urls = urlsForUser(req.session.userID);
   const templateVar = {
     urls,
-    user: userDb[req.cookies.userID],
+    user: userDb[req.session.userID],
   };
 
   res.render('urls_index', templateVar);
-
-  // console.log(userDb);
 });
 
 //Shorten New URL Page
 app.get('/urls/new', (req, res) => {
-  if (!userDb[req.cookies.userID]) {
+  if (!userDb[req.session.userID]) {
     return res.redirect('/login');
   }
 
-  res.render('urls_new', { user: userDb[req.cookies.userID] });
+  res.render('urls_new', { user: userDb[req.session.userID] });
 });
 
 //----READ----
@@ -69,12 +63,12 @@ app.get('/urls/invalidURL', (req, res) => {
 //Individual shortened URL Page
 app.get('/urls/:shortURL', (req, res) => {
   const templateVar = {
-    user: userDb[req.cookies.userID],
+    user: userDb[req.session.userID],
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
   };
 
-  if (!userDb[req.cookies.userID]) {
+  if (!userDb[req.session.userID]) {
     return res.redirect('/login');
   }
   
@@ -104,7 +98,7 @@ app.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
 
-  if (!userDb[req.cookies.userID]) {
+  if (!userDb[req.session.userID]) {
     return res.status(401).send('Unauthorized');
   }
 
@@ -132,14 +126,14 @@ app.post('/urls', (req, res) => {
 
   urlDatabase[shortURL] = {};
   urlDatabase[shortURL].longURL = longURL;
-  urlDatabase[shortURL].userID = req.cookies.userID;
+  urlDatabase[shortURL].userID = req.session.userID;
   res.redirect(`/urls/${shortURL}`);
 });
 
 //-----DELETE-----
 //Removes the shortened URL from the index
 app.post('/urls/:shortURL/delete', (req, res) => {
-  if (!userDb[req.cookies.userID]) {
+  if (!userDb[req.session.userID]) {
     return res.status(401).send('Unauthorized');
   }
 
