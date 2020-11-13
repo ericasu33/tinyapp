@@ -4,6 +4,13 @@ const bcrypt = require('bcrypt');
 
 const { generateRandomString, registerUser, isUser, userDb } = require('../helper');
 
+//================================
+//   Error - Invalid/Unauthorized
+//================================
+
+router.get('/forbidden', (req, res) => {
+  res.render('./errorPages/error_registerLogin', { user: userDb[req.session.userID] });
+});
 
 //=============
 //   Register
@@ -20,11 +27,11 @@ router.post('/register', (req, res) => {
   const user = isUser(email, userDb);
 
   if (!email || !password) {
-    return res.status(400).send('Incorret Email or Password Entered');
+    return res.status(403).redirect('/forbidden');
   }
 
   if (user) {
-    return res.status(400).send('Email already registered');
+    return res.status(403).redirect('/forbidden');
   }
 
   registerUser(id, email, hashedPassword, userDb);
@@ -46,7 +53,7 @@ router.post('/login', (req, res) => {
   const user = isUser(email, userDb);
 
   if (!user || !bcrypt.compareSync(password, user.password)) {
-    return res.status(403).send('Invalid email/password');
+    return res.status(403).redirect('/forbidden');
   }
 
   req.session.userID = user.id;
