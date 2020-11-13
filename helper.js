@@ -14,8 +14,8 @@ const isUrl = str => {
 };
 
 const urlDatabase = {
-  'b2xVn2': { longURL: 'http://www.lighthouselabs.ca', userID:'aJ481w' },
-  '9sm5xK': { longURL: 'http://www.google.com', userID:'aJ481W'},
+  'b2xVn2': { longURL: 'http://www.lighthouselabs.ca', userID:'aJ481w', date: 'dd/mm/yy 00:00:00', countVisit: 1, },
+  '9sm5xK': { longURL: 'http://www.google.com', userID:'aJ481W', date: 'dd/mm/yy 00:00:00', countVisit: 1,},
 };
 
 // userDB = { id: { id, email, password} }
@@ -42,10 +42,10 @@ const urlsForUser = (userID, userDatabase, urlDatabase) => {
   let urlDbByUser = {};
 
   for (const shortURL in urlDatabase) {
-    const {longURL, date} = urlDatabase[shortURL];
+    const {longURL, date, countVisit} = urlDatabase[shortURL];
 
     if (userDatabase[userID].id === urlDatabase[shortURL].userID) {
-      urlDbByUser[shortURL] = { longURL, date };
+      urlDbByUser[shortURL] = { longURL, date, countVisit };
     }
   }
   return urlDbByUser;
