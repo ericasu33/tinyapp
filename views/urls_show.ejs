@@ -11,7 +11,7 @@
 
   <%- include('partials/_header') %>
   
-  <main class="d-flex justify-content-center" style="margin: 12vh;">
+  <main class="d-flex justify-content-center" style="margin: 10vh;">
     <div>
       <div class="card text-center border-primary" style="width: 25rem; margin: 2rem 0 2rem 0">
         <div class="card-header">Tiny URL</div>
@@ -20,6 +20,7 @@
           <br/>
           <p class="card-text" style="font-style: italic"><%= longURL %></p>
           <p style="font-size: 0.8rem;"> created on: <%= date %></p>
+          <p style="font-size: 0.8rem;"> times visited: <%= countVisit %></p>
         </div>
       </div>
 
