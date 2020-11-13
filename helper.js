@@ -18,6 +18,7 @@ const urlDatabase = {
   '9sm5xK': { longURL: 'http://www.google.com', userID:'aJ481W'},
 };
 
+// userDB = { id: { id, email, password} }
 const userDb = {};
 
 const registerUser = (id, email, password, userDatabase) => {
@@ -25,6 +26,7 @@ const registerUser = (id, email, password, userDatabase) => {
   return userDatabase[id] = user;
 };
 
+//check if user exists and returns user details
 const isUser = (email, userDatabase) => {
   let registered;
   for (const id in userDatabase) {
@@ -35,12 +37,12 @@ const isUser = (email, userDatabase) => {
   return registered;
 };
 
-const urlsForUser = (userID, userDatabase) => {
+
+const urlsForUser = (userID, userDatabase, urlDatabase) => {
   let urlDbByUser = {};
 
   for (const shortURL in urlDatabase) {
-    const longURL = urlDatabase[shortURL].longURL;
-    const date = urlDatabase[shortURL].date;
+    const {longURL, date} = urlDatabase[shortURL];
 
     if (userDatabase[userID].id === urlDatabase[shortURL].userID) {
       urlDbByUser[shortURL] = { longURL, date };
