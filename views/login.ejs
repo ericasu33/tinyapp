@@ -10,12 +10,10 @@
 <body>
 
   <%- include('partials/_header') %>
-
-  <main style="margin: 1em;">
      
-    <main style="margin: 1em;">
+  <main class="d-flex justify-content-center" style="margin: 20vh;">
+    <div style="border: 2px solid#4287f5; padding: 2rem">
       <h3>Login</h3>
-      <p>If you have not yet registered, please register <a href="/register"> Here </a></p>
       <form class="form-group" method="POST" action="/login">
         <div class="form-group mb-2">
           <input class="form-control" type="email" name="email" style="width: 18.75rem; margin: 1rem 0 1rem 0" placeholder="Email">
@@ -23,7 +21,9 @@
           <button type="submit" class="btn btn-outline-primary" style="width: 18.75rem">Login</button>
         </div>
       </form>
-    </main>
+      <p>Not registered yet? Register <a href="/register"> Here </a></p>
+    </div>
+   </main>
 
   
     <%- include('partials/_footer') %>

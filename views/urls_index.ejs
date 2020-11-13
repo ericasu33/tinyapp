@@ -12,13 +12,13 @@
   <%- include('partials/_header') %>
 
   <main style="margin: 1em;">
-    <section id="url_index_table">
-      <h3>My URLs Index</h3>
+      <h3 style="text-align: center; margin: 1.5rem" >My Tiny URLs</h3>
       <table class="table">
         <thead>
           <tr>
             <th scope="col">Short URL</th>
             <th scope="col">Original URL</th>
+            <th scope="col">Date Created</th>
             <th scope="col">Edit</th>
             <th scope="col">Delete</th>
           </tr>
@@ -27,25 +27,25 @@
           <% for (const shortURL in urls) { %>
           <tr>
               <td><%= shortURL %></td>
-              <td><%= urls[shortURL] %></td>
+              <td><%= urls[shortURL].longURL %></td>
+              <td><%= urls[shortURL].date %></td>
               <td>
                 <form method="GET" action="/urls/<%= shortURL %>">
-                  <input style="background-color:white;border-color:blue;border-radius: 5px; padding: 0.4rem;color:blue;" type="submit" value="Edit"/>
+                  <button type="submit" class="btn btn-outline-primary">Edit</button>
                 </form>
               </td>
               <td>
                 <form method="POST" action="/urls/<%= shortURL %>/delete">
-                  <input style="background-color:white;border-color:red;border-radius: 5px; padding: 0.4rem;color:red;" type="submit" value="Delete"/>
+                  <button type="submit" class="btn btn-outline-danger">Delete</button>
                 </form>
               </td>
           </tr>
           <% } %>
         </tbody>
       </table>  
-    </section>
     
-    <section id="" class="nav">
-      <a href = "/urls/new">Shorten a new URL</a>
+    <section style="margin: 2rem 0 0 0">
+      <a href = "/urls/new"><button class="btn btn-outline-primary">New Tiny URL</button></a>
     </section>
     
     

@@ -7,15 +7,13 @@
   <title>TinyApp - Registration</title>
 </head>
 
-<body>
+<body style="height: 100vh" >
 
   <%- include('partials/_header') %>
 
-  <main style="margin: 1em;">
-     
-    <main style="margin: 1em;">
-      <h3>User Registration</h3>
-      <p>Please input your email address and create a password</p>
+  <main class="d-flex justify-content-center" style="margin: 20vh;">
+    <div style="border: 2px solid#4287f5; padding: 2rem">
+      <h3>Sign Up</h3>
       <form class="form-group" method="POST" action="/register">
         <div class="form-group mb-2">
           <input class="form-control" type="email" name="email" style="width: 18.75rem; margin: 1rem 0 1rem 0;" placeholder="Email">
@@ -23,9 +21,10 @@
           <button type="submit" class="btn btn-outline-primary" style="width: 18.75rem">Register</button>
         </div>
       </form>
-
-      <h6> Already Registered?  Login <a href="/login"> Here </a> </h6>
-    </main>
+    
+      <p> Already Registered? Login <a href="/login"> Here </a> </p>
+    </div>
+  </main>
 
     <%- include('partials/_footer') %>
 

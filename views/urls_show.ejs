@@ -11,27 +11,31 @@
 
   <%- include('partials/_header') %>
   
-  <main>
-    <div class="card text-center">
-      <div class="card-header"></div>
-      <div class="card-body">
-        <h5 class= "card-title">Tiny URL For: <%= longURL %></h5>
-        <p class="card-text">Short URL: <a href="/u/<%= shortURL %>"><%= shortURL %></a></p>
+  <main class="d-flex justify-content-center" style="margin: 12vh;">
+    <div>
+      <div class="card text-center border-primary" style="width: 25rem; margin: 2rem 0 2rem 0">
+        <div class="card-header">Tiny URL</div>
+        <div class="card-body">
+          <h5><a href="/u/<%= shortURL %>"><%= shortURL %></a></h5>
+          <br/>
+          <p class="card-text" style="font-style: italic"><%= longURL %></p>
+          <p style="font-size: 0.8rem;"> created on: <%= date %></p>
+        </div>
       </div>
-    </div>
 
-    <div class="card text-center">
-      <div class="card-header"></div>
-      <div class="card-body">
-        <h2 class= "card-title">Edit</h2>
-        <form method="POST" action="/urls/<%= shortURL %>">
-          <label>New URL:</label>
-          <input type="text" name="longURL" value="http://">
-          <input type="submit"/>
-        </form>
+      <div class="card text-center border-primary">
+        <div class="card-header">Edit</div>
+        <div class="card-body">
+          <h6 class= "card-title">New URL</h6>
+          <form class="form-group" method="POST" action="/urls/<%= shortURL %>">
+            <div class="form-group mb-2">
+              <input class="form-control" type="text" name="longURL" value="http://" style="width: 18.75rem; margin: 1rem 0 1rem 1.75rem;">
+              <button type="submit" class="btn btn-outline-primary" style="width: 18.75rem;margin: 1rem 0 1rem 0;" >Edit</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-    
   </main>
 
   <%- include('partials/_footer') %>
