@@ -1,5 +1,5 @@
 const express = require('express');
-const app = express();
+const router = express.Router();
 const bcrypt = require('bcrypt');
 
 const { generateRandomString, registerUser, isUser, userDb } = require('../helper');
@@ -9,11 +9,11 @@ const { generateRandomString, registerUser, isUser, userDb } = require('../helpe
 //   Register
 //=============
 
-app.get('/register', (req, res) => {
+router.get('/register', (req, res) => {
   res.render('register', { user: userDb[req.session.userID] });
 });
 
-app.post('/register', (req, res) => {
+router.post('/register', (req, res) => {
   const id = generateRandomString();
   const { email, password } = req.body;
   const hashedPassword = bcrypt.hashSync(password, 10);
@@ -37,11 +37,11 @@ app.post('/register', (req, res) => {
 //   LOGIN
 //=============
 
-app.get('/login', (req, res) => {
+router.get('/login', (req, res) => {
   res.render('login', { user: userDb[req.session.userID] });
 });
 
-app.post('/login', (req, res) => {
+router.post('/login', (req, res) => {
   const { email, password } = req.body;
   const user = isUser(email, userDb);
 
@@ -57,10 +57,9 @@ app.post('/login', (req, res) => {
 //   LOGOUT
 //=============
 
-app.post('/logout', (req, res) => {
+router.post('/logout', (req, res) => {
   req.session = null;
   res.redirect('/urls');
 });
 
-
-module.exports = app;
+module.exports = router;

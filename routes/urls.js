@@ -1,5 +1,5 @@
 const express = require('express');
-const app = express();
+const router = express.Router();
 
 const { generateRandomString, isUrl, urlDatabase, userDb, urlsForUser } = require('../helper');
 
@@ -19,11 +19,11 @@ const notLoggedIn = (req, res, next) => {
 //   Error - Invalid/Unauthorized
 //================================
 
-app.get('/urls/invalidURL', (req, res) => {
+router.get('/urls/invalidURL', (req, res) => {
   res.render('error_invalidURL', { user: userDb[req.session.userID] });
 });
 
-app.get('/unauthorized', (req, res) => {
+router.get('/unauthorized', (req, res) => {
   res.render('error_unauthorized', { user: userDb[req.session.userID] });
 });
 
@@ -31,7 +31,7 @@ app.get('/unauthorized', (req, res) => {
 //   HOME
 //=============
 
-app.get('/', notLoggedIn, (req, res) => {
+router.get('/', notLoggedIn, (req, res) => {
   res.redirect('/urls');
 });
 
@@ -40,7 +40,7 @@ app.get('/', notLoggedIn, (req, res) => {
 //===============
 
 //URL index with URLs that's linked to logged-in user's ID
-app.get('/urls', (req, res) => {
+router.get('/urls', (req, res) => {
   const userID = req.session.userID;
 
   if (!userDb[userID]) {
@@ -62,14 +62,14 @@ app.get('/urls', (req, res) => {
 //===============
 
 //Shorten New URL Page
-app.get('/urls/new', notLoggedIn, (req, res) => {
+router.get('/urls/new', notLoggedIn, (req, res) => {
   const userID = req.session.userID;
 
   res.render('urls_new', { user: userDb[userID] });
 });
 
 //Adds newly shortened URL to the database
-app.post('/urls', (req, res) => {
+router.post('/urls', (req, res) => {
   const userID = req.session.userID;
   const shortURL = generateRandomString();
   let longURL = req.body.longURL;
@@ -95,7 +95,7 @@ app.post('/urls', (req, res) => {
 //====================
 
 //Individual shortened URL Page
-app.get('/urls/:shortURL', (req, res) => {
+router.get('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const userID = req.session.userID;
 
@@ -129,7 +129,7 @@ app.get('/urls/:shortURL', (req, res) => {
 //================================
 
 //Redirects user to the original website linked to the shortURL
-app.get('/u/:shortURL', (req, res) => {
+router.get('/u/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
 
   if (urlDatabase[shortURL] === undefined) {
@@ -148,7 +148,7 @@ app.get('/u/:shortURL', (req, res) => {
 //=================
 
 //edits the longURL thats assigned to a shortURL
-app.post('/urls/:shortURL', (req, res) => {
+router.post('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
 
@@ -169,7 +169,7 @@ app.post('/urls/:shortURL', (req, res) => {
 //=================
 
 //Removes the shortened URL from the index
-app.post('/urls/:shortURL/delete', (req, res) => {
+router.post('/urls/:shortURL/delete', (req, res) => {
   if (!userDb[req.session.userID]) {
     return res.status(401).send('Unauthorized');
   }
@@ -181,8 +181,8 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 //=================
 //   404 Error
 //=================
-app.use((req, res) => {
+router.use((req, res) => {
   res.status(404).render('error_404');
 });
 
-module.exports = app;
+module.exports = router;
