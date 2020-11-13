@@ -73,6 +73,7 @@ router.post('/urls', (req, res) => {
   const userID = req.session.userID;
   const shortURL = generateRandomString();
   let longURL = req.body.longURL;
+  let countVisit = 0;
 
   const longDate = new Date();
   const date = longDate.toLocaleString();
@@ -86,7 +87,7 @@ router.post('/urls', (req, res) => {
   }
 
   //links the shortened URL by userID
-  urlDatabase[shortURL] = { longURL, userID, date };
+  urlDatabase[shortURL] = { longURL, userID, date, countVisit };
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -113,12 +114,17 @@ router.get('/urls/:shortURL', (req, res) => {
   if (userID !== urlDatabase[shortURL].userID) {
     return res.status(401).redirect('/unauthorized');
   }
+  
+  const longURL = urlDatabase[shortURL].longURL;
+  const date = urlDatabase[shortURL].date;
+  const countVisit = urlDatabase[shortURL].countVisit;
 
   const templateVar = {
     user: userDb[userID],
     shortURL,
-    longURL: urlDatabase[shortURL].longURL,
-    date: urlDatabase[shortURL].date
+    longURL,
+    date,
+    countVisit,
   };
 
   res.render('urls_show', templateVar);
@@ -135,6 +141,8 @@ router.get('/u/:shortURL', (req, res) => {
   if (urlDatabase[shortURL] === undefined) {
     return res.status(404).render('./errorPages/error_404');
   }
+
+  urlDatabase[shortURL].countVisit += 1;
 
   const templateVar = {
     longURL: urlDatabase[shortURL].longURL
