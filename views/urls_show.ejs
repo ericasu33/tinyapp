@@ -11,29 +11,53 @@
 
   <%- include('partials/_header') %>
   
-  <main class="d-flex justify-content-center" style="margin: 10vh;">
-    <div>
-      <div class="card text-center border-primary" style="width: 25rem; margin: 2rem 0 2rem 0">
+  <main class="d-flex justify-content-center" style="margin: 20vh;">
+    <div class="row">
+      <div class="card text-center border-primary" style="margin: 1rem">
+        <div class="card-header">Edit</div>
+        <div class="card-body">
+          <h6 class= "card-title">New URL</h6>
+          <form class="form-group" method="POST" action="/urls/<%= shortURL %>">
+            <div class="form-group mb-2">
+              <input class="form-control" type="text" name="longURL" value="http://" style="width: 18.75rem; margin: 1rem 0 1rem 0;">
+              <button type="submit" class="btn btn-outline-primary" style="width: 18.75rem;margin: 1rem 0 1rem 0;" >Edit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card text-center border-primary" style="margin: 1rem">
         <div class="card-header">Tiny URL</div>
         <div class="card-body">
           <h5><a href="/u/<%= shortURL %>"><%= shortURL %></a></h5>
           <br/>
           <p class="card-text" style="font-style: italic"><%= longURL %></p>
           <p style="font-size: 0.8rem;"> created on: <%= date %></p>
-          <p style="font-size: 0.8rem;"> times visited: <%= countVisit %></p>
+          <p style="font-size: 0.8rem;"> total visited: <%= totalVisit %></p>
         </div>
       </div>
 
-      <div class="card text-center border-primary">
-        <div class="card-header">Edit</div>
+      <div class="card text-center border-primary" style="margin: 1rem" >
+        <div class="card-header">Unique Visits</div>
         <div class="card-body">
-          <h6 class= "card-title">New URL</h6>
-          <form class="form-group" method="POST" action="/urls/<%= shortURL %>">
-            <div class="form-group mb-2">
-              <input class="form-control" type="text" name="longURL" value="http://" style="width: 18.75rem; margin: 1rem 0 1rem 1.75rem;">
-              <button type="submit" class="btn btn-outline-primary" style="width: 18.75rem;margin: 1rem 0 1rem 0;" >Edit</button>
-            </div>
-          </form>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Visitor ID</th>
+                <th scope="col">Timestamp</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (visits) { %> 
+                <% for (const visit of visits) { %>
+                <tr>
+                  <td><%= visit.visitorID %></td>
+                  <td><%= visit.uniqueVisitTime %></td>
+                </tr>
+                <% } %>
+              <% } %>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

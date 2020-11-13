@@ -19,7 +19,8 @@
             <th scope="col">Short URL</th>
             <th scope="col">Original URL</th>
             <th scope="col">Date Created</th>
-            <th scope="col">Times Visited</th>
+            <th scope="col">Unique Visits</th>
+            <th scope="col">Total Visits</th>
             <th scope="col">Edit</th>
             <th scope="col">Delete</th>
           </tr>
@@ -30,7 +31,8 @@
               <td><a href="/urls/<%= shortURL %>"><%= shortURL %></a></td>
               <td><%= urls[shortURL].longURL %></td>
               <td><%= urls[shortURL].date %></td>
-              <td><%= urls[shortURL].countVisit %></td>
+              <td><%= urls[shortURL].uniqueVisit %></td>
+              <td><%= urls[shortURL].totalVisit %></td>
               <td>
                 <form method="GET" action="/urls/<%= shortURL %>">
                   <button type="submit" class="btn btn-outline-primary">Edit</button>
