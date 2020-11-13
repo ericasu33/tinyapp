@@ -19,7 +19,6 @@ app.post('/register', (req, res) => {
   const hashedPassword = bcrypt.hashSync(password, 10);
   const user = isUser(email, userDb);
 
-
   if (!email || !password) {
     return res.status(400).send('Incorret Email or Password Entered');
   }
@@ -46,13 +45,7 @@ app.post('/login', (req, res) => {
   const { email, password } = req.body;
   const user = isUser(email, userDb);
 
-  if (!user) {
-    return res.status(403).send('Invalid email/password');
-  }
-
-  const hashedPassword = bcrypt.compareSync(password, user.password);
-
-  if (!hashedPassword) {
+  if (!user || !bcrypt.compareSync(password, user.password)) {
     return res.status(403).send('Invalid email/password');
   }
 
