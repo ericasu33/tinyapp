@@ -20,11 +20,11 @@ const notLoggedIn = (req, res, next) => {
 //================================
 
 router.get('/urls/invalidURL', (req, res) => {
-  res.render('error_invalidURL', { user: userDb[req.session.userID] });
+  res.render('./errorPages/error_invalidURL', { user: userDb[req.session.userID] });
 });
 
 router.get('/unauthorized', (req, res) => {
-  res.render('error_unauthorized', { user: userDb[req.session.userID] });
+  res.render('./errorPages/error_unauthorized', { user: userDb[req.session.userID] });
 });
 
 //=============
@@ -106,7 +106,7 @@ router.get('/urls/:shortURL', (req, res) => {
 
   //prevent logged-in user from directly entering random value in the browser
   if (urlDatabase[shortURL] === undefined) {
-    return res.status(404).render('error_404');
+    return res.status(404).render('./errorPages/error_404');
   }
 
   //logged in but using another user's :shortURL
@@ -133,7 +133,7 @@ router.get('/u/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
 
   if (urlDatabase[shortURL] === undefined) {
-    return res.status(404).render('error_404');
+    return res.status(404).render('./errorPages/error_404');
   }
 
   const templateVar = {
@@ -181,8 +181,10 @@ router.post('/urls/:shortURL/delete', (req, res) => {
 //=================
 //   404 Error
 //=================
+
+//give 404 if non logged in user enter randomly in the address bar after '/'
 router.use((req, res) => {
-  res.status(404).render('error_404');
+  res.status(404).render('./errorPages/error_404');
 });
 
 module.exports = router;

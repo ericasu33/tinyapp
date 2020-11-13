@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+
+    <%- include('../partials/_head') %>
+
+    <title>Tiny App - Invalid URL</title>
+  </head>
+
+  <body>
+
+    <%- include('../partials/_header') %>
+    <main class="d-flex justify-content-center" style="margin: 12vh;">
+      <div>
+        <div class="card text-center border-primary" style="width: 25rem; margin: 2rem 0 2rem 0">
+          <div class="card-header">Invalid URL</div>
+          <div class="card-body">
+            <a href="/urls/new"><button type="submit" class="btn btn-outline-primary" style="width: 18.75rem;margin: 1rem 0 1rem 0;" >Create Tiny URL</button></a>
+            <a href="/urls"><button type="submit" class="btn btn-outline-primary" style="width: 18.75rem;margin: 1rem 0 1rem 0;" >My URLs</button></a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <%- include('../partials/_footer') %>
+    
+  </body>
+</html>
