@@ -1,7 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const methodOverride = require('method-override');
+const morgan = require('morgan');
+
+router.use(morgan('dev'));
+router.use(methodOverride('_method'));
 
 const { generateRandomString, isUrl, urlDatabase, userDb, urlsForUser } = require('../helper');
+
 
 //===============
 //   Middleware
@@ -170,7 +176,7 @@ router.get('/u/:shortURL', (req, res) => {
 //=================
 
 //edits the longURL thats assigned to a shortURL
-router.post('/urls/:shortURL', (req, res) => {
+router.put('/urls/:shortURL', (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
 
@@ -191,7 +197,7 @@ router.post('/urls/:shortURL', (req, res) => {
 //=================
 
 //Removes the shortened URL from the index
-router.post('/urls/:shortURL/delete', (req, res) => {
+router.delete('/urls/:shortURL/delete', (req, res) => {
   if (!userDb[req.session.userID]) {
     return res.status(401).send('Unauthorized');
   }
