@@ -24,7 +24,9 @@ Deployed Website: https://ericasu-tinyurlapp.herokuapp.com/login
 ## Getting Started
 
 - Install all dependencies (using the `npm install` command).
-- Run the development web server using the `node express_server.js` command.
+- Run the development web server using the `node express_server.js` or `npm start` command.
+
+- In the browser, input `http://localhost:8080/` as the URL address.
 
 ## Functions
 - Registration/Login required to access the Tiny URL App.
