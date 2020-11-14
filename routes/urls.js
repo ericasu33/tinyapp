@@ -78,7 +78,7 @@ router.post('/urls', (req, res) => {
   const visits = [];
 
   const longDate = new Date();
-  const date = longDate.toLocaleString();
+  const date = longDate.toGMTString();
 
   if (!longURL.startsWith('http')) {
     longURL = `http://${longURL}`;
@@ -152,7 +152,7 @@ router.get('/u/:shortURL', (req, res) => {
     req.session.visitorID = generateRandomString();
     const visitorID = req.session.visitorID;
     const date = new Date();
-    const uniqueVisitTime = date.toLocaleString();
+    const uniqueVisitTime = date.toGMTString();
     urlDatabase[shortURL].visits.push({ uniqueVisitTime, visitorID });
     
     urlDatabase[shortURL].uniqueVisit += 1;
