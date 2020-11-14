@@ -17,7 +17,7 @@
         <div class="card-header">Edit</div>
         <div class="card-body">
           <h6 class= "card-title">New URL</h6>
-          <form class="form-group" method="POST" action="/urls/<%= shortURL %>">
+          <form class="form-group" method="POST" action="/urls/<%= shortURL %>?_method=PUT">
             <div class="form-group mb-2">
               <input class="form-control" type="text" name="longURL" value="http://" style="width: 18.75rem; margin: 1rem 0 1rem 0;">
               <button type="submit" class="btn btn-outline-primary" style="width: 18.75rem;margin: 1rem 0 1rem 0;" >Edit</button>
