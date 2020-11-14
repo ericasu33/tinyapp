@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 
 app.set('view engine', 'ejs');
 app.use(express.static("views"));
