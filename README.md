@@ -19,6 +19,7 @@ Deployed Website: https://ericasu-tinyurlapp.herokuapp.com/login
 - bcrypt
 - body-parser
 - cookie-session
+- method-override
 
 ## Getting Started
 
