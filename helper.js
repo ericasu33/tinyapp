@@ -1,3 +1,15 @@
+const monk = require('monk');
+const db = monk('localhost/tinyurl');
+// npm install dotenv
+// require('dotenv').config();
+// const db = monk(process.env.MONGO_URI)
+const urlDatabase = db.get('urls');
+urlDatabase.createIndex({ shortURL: 1 }, { unique: true });
+
+const userDb = db.get('users');
+userDb.createIndex({ userID: 1 }, { unique: true });
+userDb.createIndex({ email: 1 }, { unique: true });
+
 const generateRandomString = () => {
   const randomChar = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   return [...Array(6)].reduce(a => a + randomChar[~~(Math.random() * randomChar.length)],'');
@@ -13,62 +25,56 @@ const isUrl = str => {
   }
 };
 
-const urlDatabase = {
-  'b2xVn2': {
-    longURL: 'http://www.lighthouselabs.ca',
-    userID:'aJ481w', date: 'dd/mm/yy 00:00:00',
-    totalVisit: 1,
-    uniqueVisit: 1,
-    visits: [ {
-      visitorID: 'abc',
-      uniqueVisitTime: 'dd/mm/yy 00:00:00'
-    },
-    {
-      visitorID: 'abc',
-      uniqueVisitTime: 'dd/mm/yy 00:00:00'
-    },]
-  },
-};
+// const urlDatabase = {
+//   'b2xVn2': {
+//     longURL: 'http://www.lighthouselabs.ca',
+//     userID:'aJ481w',
+//     date: 'dd/mm/yy 00:00:00',
+//     totalVisit: 1,
+//     uniqueVisit: 1,
+//     visits: [ {
+//       visitorID: 'abc',
+//       uniqueVisitTime: 'dd/mm/yy 00:00:00'
+//     },
+//     {
+//       visitorID: 'abc',
+//       uniqueVisitTime: 'dd/mm/yy 00:00:00'
+//     },]
+//   },
+// };
 
-// userDB = { id: { id, email, password} }
-const userDb = {};
+// userDB = { userID, email, password };
+// const userDb = {};
 
-const registerUser = (id, email, password, userDatabase) => {
-  const user = { id, email, password };
-  return userDatabase[id] = user;
+const registerUser = async(userID, email, password, userDatabase) => {
+  const user = { userID, email, password };
+  const created = await userDatabase.insert(user);
+  return created;
 };
 
 //check if user exists and returns user details
-const isUser = (email, userDatabase) => {
-  let registered;
-  for (const id in userDatabase) {
-    if (userDatabase[id].email === email) {
-      registered = userDatabase[id];
-    }
-  }
-  return registered;
+const isUser = async(email, userDatabase) => {
+  const user = await userDatabase.findOne({ 'email': email });
+  return user;
 };
 
+const urlsForUser = async(userID, urlDatabase) => {
+  const urls = await urlDatabase.find({ userID });
+  return urls;
+};
 
-const urlsForUser = (userID, userDatabase, urlDatabase) => {
-  let urlDbByUser = {};
-
-  for (const shortURL in urlDatabase) {
-    const {longURL, date, totalVisit, uniqueVisit, } = urlDatabase[shortURL];
-
-    if (userDatabase[userID].id === urlDatabase[shortURL].userID) {
-      urlDbByUser[shortURL] = { longURL, date, totalVisit, uniqueVisit, };
-    }
-  }
-  return urlDbByUser;
+const getUser = async(userID, userDatabase) => {
+  const user = await userDatabase.findOne({ userID });
+  return user;
 };
 
 module.exports = {
   generateRandomString,
   isUrl,
-  urlDatabase,
-  userDb,
   registerUser,
   isUser,
   urlsForUser,
+  getUser,
+  urlDatabase,
+  userDb,
 };

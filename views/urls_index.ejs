@@ -26,20 +26,20 @@
           </tr>
         </thead>
         <tbody>
-          <% for (const shortURL in urls) { %>
+          <% for (const url in urls) { %>
           <tr>
-              <td><a href="/urls/<%= shortURL %>"><%= shortURL %></a></td>
-              <td><%= urls[shortURL].longURL %></td>
-              <td><%= urls[shortURL].date %></td>
-              <td><%= urls[shortURL].uniqueVisit %></td>
-              <td><%= urls[shortURL].totalVisit %></td>
+              <td><a href="/urls/<%= urls[url].shortURL %>"><%= urls[url].shortURL %></a></td>
+              <td><%= urls[url].longURL %></td>
+              <td><%= urls[url].date %></td>
+              <td><%= urls[url].uniqueVisit %></td>
+              <td><%= urls[url].totalVisit %></td>
               <td>
-                <form method="GET" action="/urls/<%= shortURL %>">
+                <form method="GET" action="/urls/<%= urls[url].shortURL %>">
                   <button type="submit" class="btn btn-outline-primary">Edit</button>
                 </form>
               </td>
               <td>
-                <form method="POST" action="/urls/<%= shortURL %>/delete?_method=DELETE">
+                <form method="POST" action="/urls/<%= urls[url].shortURL %>/delete?_method=DELETE">
                   <button type="submit" class="btn btn-outline-danger">Delete</button>
                 </form>
               </td>

@@ -2,29 +2,29 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 
-const { generateRandomString, registerUser, isUser, userDb } = require('../helper');
+const { generateRandomString, registerUser, isUser, userDb, getUser } = require('../helper');
 
 //================================
 //   Error - Invalid/Unauthorized
 //================================
 
-router.get('/forbidden', (req, res) => {
-  res.render('./errorPages/error_registerLogin', { user: userDb[req.session.userID] });
+router.get('/forbidden', async(req, res) => {
+  res.render('./errorPages/error_registerLogin', { user: await getUser(req.session.userID, userDb) });
 });
 
 //=============
 //   Register
 //=============
 
-router.get('/register', (req, res) => {
-  res.render('register', { user: userDb[req.session.userID] });
+router.get('/register', async(req, res) => {
+  res.render('register', { user: await getUser(req.session.userID, userDb) });
 });
 
-router.post('/register', (req, res) => {
-  const id = generateRandomString();
+router.post('/register', async(req, res) => {
+  const userID = generateRandomString();
   const { email, password } = req.body;
   const hashedPassword = bcrypt.hashSync(password, 10);
-  const user = isUser(email, userDb);
+  const user = await isUser(email, userDb);
 
   if (!email || !password) {
     return res.status(403).redirect('/forbidden');
@@ -34,9 +34,10 @@ router.post('/register', (req, res) => {
     return res.status(403).redirect('/forbidden');
   }
 
-  registerUser(id, email, hashedPassword, userDb);
+  const result = await registerUser(userID, email, hashedPassword, userDb);
+  console.log(result);
 
-  req.session.userID = id;
+  req.session.userID = userID;
   res.redirect('/urls');
 });
 
@@ -44,19 +45,19 @@ router.post('/register', (req, res) => {
 //   LOGIN
 //=============
 
-router.get('/login', (req, res) => {
-  res.render('login', { user: userDb[req.session.userID] });
+router.get('/login', async(req, res) => {
+  res.render('login', { user: await getUser(req.session.userID, userDb) });
 });
 
-router.post('/login', (req, res) => {
+router.post('/login', async(req, res) => {
   const { email, password } = req.body;
-  const user = isUser(email, userDb);
+  const user = await isUser(email, userDb);
 
   if (!user || !bcrypt.compareSync(password, user.password)) {
     return res.status(403).redirect('/forbidden');
   }
 
-  req.session.userID = user.id;
+  req.session.userID = user.userID;
   res.redirect('/urls');
 });
 
@@ -64,7 +65,7 @@ router.post('/login', (req, res) => {
 //   LOGOUT
 //=============
 
-router.post('/logout', (req, res) => {
+router.post('/logout', async(req, res) => {
   req.session = null;
   res.redirect('/urls');
 });

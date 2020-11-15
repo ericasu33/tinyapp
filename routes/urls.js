@@ -6,16 +6,17 @@ const morgan = require('morgan');
 router.use(morgan('dev'));
 router.use(methodOverride('_method'));
 
-const { generateRandomString, isUrl, urlDatabase, userDb, urlsForUser } = require('../helper');
+const { generateRandomString, isUrl, urlDatabase, userDb, urlsForUser, getUser } = require('../helper');
 
 
 //===============
 //   Middleware
 //===============
 
-const notLoggedIn = (req, res, next) => {
+const notLoggedIn = async(req, res, next) => {
   const userID = req.session.userID;
-  if (!userDb[userID]) {
+  const user = await getUser(req.session.userID, userDb);
+  if (!user) {
     return res.redirect('/login');
   }
   next();
@@ -25,19 +26,19 @@ const notLoggedIn = (req, res, next) => {
 //   Error - Invalid/Unauthorized
 //================================
 
-router.get('/urls/invalidURL', (req, res) => {
-  res.render('./errorPages/error_invalidURL', { user: userDb[req.session.userID] });
+router.get('/urls/invalidURL', async(req, res) => {
+  res.render('./errorPages/error_invalidURL', { user: await getUser(req.session.userID, userDb) });
 });
 
-router.get('/unauthorized', (req, res) => {
-  res.render('./errorPages/error_unauthorized', { user: userDb[req.session.userID] });
+router.get('/unauthorized', async(req, res) => {
+  res.render('./errorPages/error_unauthorized', { user: await getUser(req.session.userID, userDb) });
 });
 
 //=============
 //   HOME
 //=============
 
-router.get('/', notLoggedIn, (req, res) => {
+router.get('/', notLoggedIn, async(req, res) => {
   res.redirect('/urls');
 });
 
@@ -46,18 +47,19 @@ router.get('/', notLoggedIn, (req, res) => {
 //===============
 
 //URL index with URLs that's linked to logged-in user's ID
-router.get('/urls', (req, res) => {
+router.get('/urls', async(req, res) => {
   const userID = req.session.userID;
-
-  if (!userDb[userID]) {
+  const user = await userDb.findOne({userID});
+  if (!user) {
     return res.status(401).redirect('/unauthorized');
   }
 
-  const urls = urlsForUser(userID, userDb, urlDatabase);
+  const urls = await urlsForUser(userID, urlDatabase);
+  console.log(urls);
 
   const templateVar = {
     urls,
-    user: userDb[userID],
+    user: await userDb.findOne({userID}),
   };
 
   res.render('urls_index', templateVar);
@@ -68,14 +70,12 @@ router.get('/urls', (req, res) => {
 //===============
 
 //Shorten New URL Page
-router.get('/urls/new', notLoggedIn, (req, res) => {
-  const userID = req.session.userID;
-
-  res.render('urls_new', { user: userDb[userID] });
+router.get('/urls/new', notLoggedIn, async(req, res) => {
+  res.render('urls_new', { user: await getUser(req.session.userID, userDb) });
 });
 
 //Adds newly shortened URL to the database
-router.post('/urls', (req, res) => {
+router.post('/urls', async(req, res) => {
   const userID = req.session.userID;
   const shortURL = generateRandomString();
   let longURL = req.body.longURL;
@@ -95,7 +95,8 @@ router.post('/urls', (req, res) => {
   }
 
   //links the shortened URL by userID
-  urlDatabase[shortURL] = { longURL, userID, date, totalVisit, uniqueVisit, visits };
+  const result = await urlDatabase.insert({shortURL, longURL, userID, date, totalVisit, uniqueVisit, visits });
+  console.log(result);
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -104,29 +105,30 @@ router.post('/urls', (req, res) => {
 //====================
 
 //Individual shortened URL Page
-router.get('/urls/:shortURL', (req, res) => {
+router.get('/urls/:shortURL', async(req, res) => {
   const shortURL = req.params.shortURL;
   const userID = req.session.userID;
 
   //not logged in
-  if (!userDb[userID]) {
+  const user = await getUser(userID, userDb);
+  if (!user) {
     return res.status(401).redirect('/unauthorized');
   }
 
   //prevent logged-in user from directly entering random value in the browser
-  if (urlDatabase[shortURL] === undefined) {
+  const url = await urlDatabase.findOne({shortURL});
+  if (!url) {
     return res.status(404).render('./errorPages/error_404');
   }
 
   //logged in but using another user's :shortURL
-  if (userID !== urlDatabase[shortURL].userID) {
+  if (userID !== url.userID) {
     return res.status(401).redirect('/unauthorized');
   }
   
-  const { longURL, date, totalVisit, uniqueVisit, visits } = urlDatabase[shortURL];
-
+  const { longURL, date, totalVisit, uniqueVisit, visits } = await urlDatabase.findOne({shortURL});
   const templateVar = {
-    user: userDb[userID],
+    user: await userDb.findOne({userID}),
     shortURL,
     longURL,
     date,
@@ -134,6 +136,8 @@ router.get('/urls/:shortURL', (req, res) => {
     uniqueVisit,
     visits,
   };
+
+  console.log(templateVar);
 
   res.render('urls_show', templateVar);
 });
@@ -143,32 +147,40 @@ router.get('/urls/:shortURL', (req, res) => {
 //================================
 
 //Redirects user to the original website linked to the shortURL
-router.get('/u/:shortURL', (req, res) => {
+router.get('/u/:shortURL', async(req, res) => {
   const shortURL = req.params.shortURL;
-
-  if (urlDatabase[shortURL] === undefined) {
+  const url = await urlDatabase.findOne({shortURL});
+  if (!url) {
     return res.status(404).render('./errorPages/error_404');
   }
 
   //tracks total time visited
-  urlDatabase[shortURL].totalVisit += 1;
+  const totalVisit = url.totalVisit + 1;
 
   //tracks unique visitors
+  let visits;
+  let uniqueVisit;
+
   if (!req.session.visitorID) {
     req.session.visitorID = generateRandomString();
     const visitorID = req.session.visitorID;
+
     const date = new Date();
     const uniqueVisitTime = date.toGMTString();
-    urlDatabase[shortURL].visits.push({ uniqueVisitTime, visitorID });
-    
-    urlDatabase[shortURL].uniqueVisit += 1;
+
+    visits = url.visit ? url.visit : [];
+    visits.push({ uniqueVisitTime, visitorID });
+  
+    uniqueVisit = url.uniqueVisit + 1;
   }
 
-  const templateVar = {
-    longURL: urlDatabase[shortURL].longURL
-  };
+  console.log(url);
+  const result = await urlDatabase.update({shortURL}, {$set: { totalVisit, uniqueVisit, visits }});
 
-  res.redirect(templateVar.longURL);
+  console.log(result);
+  const redirectURL = await urlDatabase.findOne({ shortURL });
+
+  res.redirect(redirectURL.longURL);
 });
 
 //=================
@@ -176,11 +188,12 @@ router.get('/u/:shortURL', (req, res) => {
 //=================
 
 //edits the longURL thats assigned to a shortURL
-router.put('/urls/:shortURL', (req, res) => {
+router.put('/urls/:shortURL', async(req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
-
-  if (!userDb[req.session.userID]) {
+  const userID = req.session.userID;
+  const user = await userDb.findOne({userID});
+  if (!user) {
     return res.status(401).send('Unauthorized');
   }
 
@@ -188,7 +201,7 @@ router.put('/urls/:shortURL', (req, res) => {
     return res.redirect('/urls/invalidURL');
   }
 
-  urlDatabase[shortURL].longURL = longURL;
+  await urlDatabase.findOneAndUpdate({ shortURL }, {$set: {longURL} });
   res.redirect('/urls');
 });
 
@@ -197,12 +210,15 @@ router.put('/urls/:shortURL', (req, res) => {
 //=================
 
 //Removes the shortened URL from the index
-router.delete('/urls/:shortURL/delete', (req, res) => {
-  if (!userDb[req.session.userID]) {
+router.delete('/urls/:shortURL/delete', async(req, res) => {
+  const userID = req.session.userID;
+  const shortURL = req.params.shortURL;
+  const user = await userDb.findOne({userID});
+  if (!user) {
     return res.status(401).send('Unauthorized');
   }
 
-  delete urlDatabase[req.params.shortURL];
+  await urlDatabase.remove({shortURL});
   res.redirect('/urls');
 });
 
@@ -211,7 +227,7 @@ router.delete('/urls/:shortURL/delete', (req, res) => {
 //=================
 
 //give 404 if non logged in user enter randomly in the address bar after '/'
-router.use((req, res) => {
+router.use(async(req, res) => {
   res.status(404).render('./errorPages/error_404');
 });
 
