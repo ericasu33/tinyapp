@@ -20,6 +20,7 @@ Deployed Website: https://ericasu-tinyurlapp.herokuapp.com/login
 - body-parser
 - cookie-session
 - method-override
+- monk
 
 ## Getting Started
 
@@ -38,3 +39,9 @@ Deployed Website: https://ericasu-tinyurlapp.herokuapp.com/login
 ## Analytics
 - Tracks total visits to the shortened URL link
 - Tracks unique visitor + timestamp
+
+## Notes
+- This website does not utilize responsive web design 
+
+# Contribution
+- lippy: with setting Mongo Database.
