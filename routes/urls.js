@@ -13,10 +13,10 @@ const { generateRandomString, isUrl, urlDatabase, userDb, urlsForUser, getUser }
 //   Middleware
 //===============
 
-const notLoggedIn = async(req, res, next) => {
+const unauthorized = async(req, res, next) => {
   const user = await getUser(req.session.userID, userDb);
   if (!user) {
-    return res.redirect('/login');
+    return res.status(401).redirect('/unauthorized');
   }
   next();
 };
@@ -33,11 +33,19 @@ router.get('/unauthorized', async(req, res) => {
   res.render('./errorPages/error_unauthorized', { user: await getUser(req.session.userID, userDb) });
 });
 
+router.get('/404', async(req, res) => {
+  res.status(404).render('./errorPages/error_404');
+});
+
 //=============
 //   HOME
 //=============
 
-router.get('/', notLoggedIn, async(req, res) => {
+router.get('/', async(req, res) => {
+  const user = await getUser(req.session.userID, userDb);
+  if (!user) {
+    return res.redirect('/login');
+  }
   res.redirect('/urls');
 });
 
@@ -46,12 +54,8 @@ router.get('/', notLoggedIn, async(req, res) => {
 //===============
 
 //URL index with URLs that's linked to logged-in user's ID
-router.get('/urls', async(req, res) => {
+router.get('/urls', unauthorized, async(req, res) => {
   const userID = req.session.userID;
-  const user = await userDb.findOne({userID});
-  if (!user) {
-    return res.status(401).redirect('/unauthorized');
-  }
 
   const urls = await urlsForUser(userID, urlDatabase);
 
@@ -68,7 +72,7 @@ router.get('/urls', async(req, res) => {
 //===============
 
 //Shorten New URL Page
-router.get('/urls/new', notLoggedIn, async(req, res) => {
+router.get('/urls/new', unauthorized, async(req, res) => {
   res.render('urls_new', { user: await getUser(req.session.userID, userDb) });
 });
 
@@ -102,20 +106,14 @@ router.post('/urls', async(req, res) => {
 //====================
 
 //Individual shortened URL Page
-router.get('/urls/:shortURL', async(req, res) => {
+router.get('/urls/:shortURL', unauthorized, async(req, res) => {
   const shortURL = req.params.shortURL;
   const userID = req.session.userID;
-
-  //not logged in
-  const user = await getUser(userID, userDb);
-  if (!user) {
-    return res.status(401).redirect('/unauthorized');
-  }
 
   //prevent logged-in user from directly entering random value in the browser
   const url = await urlDatabase.findOne({ shortURL });
   if (!url) {
-    return res.status(404).render('./errorPages/error_404');
+    return res.redirect('/404');
   }
 
   //logged in but using another user's :shortURL
@@ -146,7 +144,7 @@ router.get('/u/:shortURL', async(req, res) => {
   const shortURL = req.params.shortURL;
   const url = await urlDatabase.findOne({ shortURL });
   if (!url) {
-    return res.status(404).render('./errorPages/error_404');
+    return res.redirect('/404');
   }
 
   //tracks total time visited
@@ -175,14 +173,9 @@ router.get('/u/:shortURL', async(req, res) => {
 //=================
 
 //edits the longURL thats assigned to a shortURL
-router.put('/urls/:shortURL', async(req, res) => {
+router.put('/urls/:shortURL', unauthorized, async(req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
-  const userID = req.session.userID;
-  const user = await userDb.findOne({ userID });
-  if (!user) {
-    return res.status(401).send('Unauthorized');
-  }
 
   if (!isUrl(longURL)) {
     return res.redirect('/urls/invalidURL');
@@ -197,13 +190,8 @@ router.put('/urls/:shortURL', async(req, res) => {
 //=================
 
 //Removes the shortened URL from the index
-router.delete('/urls/:shortURL/delete', async(req, res) => {
-  const userID = req.session.userID;
+router.delete('/urls/:shortURL/delete', unauthorized, async(req, res) => {
   const shortURL = req.params.shortURL;
-  const user = await userDb.findOne({ userID });
-  if (!user) {
-    return res.status(401).send('Unauthorized');
-  }
 
   await urlDatabase.remove({ shortURL });
   res.redirect('/urls');
@@ -215,7 +203,7 @@ router.delete('/urls/:shortURL/delete', async(req, res) => {
 
 //give 404 if non logged in user enter randomly in the address bar after '/'
 router.use(async(req, res) => {
-  res.status(404).render('./errorPages/error_404');
+  return res.redirect('/404');
 });
 
 module.exports = router;
