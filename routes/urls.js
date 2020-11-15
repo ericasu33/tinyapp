@@ -155,31 +155,24 @@ router.get('/u/:shortURL', async(req, res) => {
   }
 
   //tracks total time visited
-  const totalVisit = url.totalVisit + 1;
+  let mongoset = {};
+  mongoset['$inc'] = { totalVisit: 1 };
 
   //tracks unique visitors
-  let visits;
-  let uniqueVisit;
-
   if (!req.session.visitorID) {
     req.session.visitorID = generateRandomString();
     const visitorID = req.session.visitorID;
-
     const date = new Date();
     const uniqueVisitTime = date.toGMTString();
 
-    visits = url.visit ? url.visit : [];
-    visits.push({ uniqueVisitTime, visitorID });
-  
-    uniqueVisit = url.uniqueVisit + 1;
+    mongoset['$addToSet'] = { visits: { uniqueVisitTime, visitorID } };
+    mongoset['$inc'] = { uniqueVisit: 1, totalVisit: 1 };
   }
 
-  console.log(url);
-  const result = await urlDatabase.update({shortURL}, {$set: { totalVisit, uniqueVisit, visits }});
-
+  const result = await urlDatabase.findOneAndUpdate({ shortURL }, mongoset);
   console.log(result);
   const redirectURL = await urlDatabase.findOne({ shortURL });
-
+  
   res.redirect(redirectURL.longURL);
 });
 
