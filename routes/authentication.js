@@ -34,8 +34,7 @@ router.post('/register', async(req, res) => {
     return res.status(403).redirect('/forbidden');
   }
 
-  const result = await registerUser(userID, email, hashedPassword, userDb);
-  console.log(result);
+  await registerUser(userID, email, hashedPassword, userDb);
 
   req.session.userID = userID;
   res.redirect('/urls');
