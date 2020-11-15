@@ -43,5 +43,5 @@ Deployed Website: https://ericasu-tinyurlapp.herokuapp.com/login
 ## Notes
 - This website does not utilize responsive web design 
 
-# Contribution
+## Contribution
 - lippy: with setting Mongo Database.
