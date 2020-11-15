@@ -1,5 +1,5 @@
 const monk = require('monk');
-const db = monk('localhost/tinyurl');
+const db = monk('mongodb+srv://ericasu33:aug311990@cluster0.xgmdr.mongodb.net/tinyurl?retryWrites=true&w=majority');
 // npm install dotenv
 // require('dotenv').config();
 // const db = monk(process.env.MONGO_URI)
