@@ -1,8 +1,6 @@
 const monk = require('monk');
-const db = monk('mongodb+srv://esu:esu@cluster0.xgmdr.mongodb.net/tinyurl?retryWrites=true&w=majority');
-// npm install dotenv
-// require('dotenv').config();
-// const db = monk(process.env.MONGO_URI)
+// const db = monk('mongodb+srv://esu:esu@cluster0.xgmdr.mongodb.net/tinyurl?retryWrites=true&w=majority');
+const db = monk(process.env.MONGO_URI);
 const urlDatabase = db.get('urls');
 urlDatabase.createIndex({ shortURL: 1 }, { unique: true });
 
