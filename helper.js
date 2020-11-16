@@ -1,4 +1,6 @@
 const monk = require('monk');
+require('dotenv').config();
+
 //sets the mongo db connection string (with the username&pw) in the heroku config  directly
 const db = monk(process.env.MONGODB_URI);
 
