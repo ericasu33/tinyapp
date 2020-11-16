@@ -1,6 +1,6 @@
 # TinyApp Project
 
-TinyApp is a full stack web application built with Node and Express that allows users to shorten long URLs (à la bit.ly).
+TinyApp is a full stack web application built with Node, Express, and Mongo Database that allows users to shorten long URLs (à la bit.ly).
 
 Deployed Website: https://ericasu-tinyurlapp.herokuapp.com/login
 
@@ -21,6 +21,7 @@ Deployed Website: https://ericasu-tinyurlapp.herokuapp.com/login
 - cookie-session
 - method-override
 - monk
+- dotenv
 
 ## Getting Started
 
@@ -33,12 +34,12 @@ Deployed Website: https://ericasu-tinyurlapp.herokuapp.com/login
 - Registration/Login required to access the Tiny URL App.
 - Index page with all the URLs you have shortened so far.
 - You can edit the given shortenURL 's ID with another URL.
-- You  can also delete any of the created URLs in your index page.
-- Tracks timestamp of when URLs are shortened
+- You can also delete any of the created URLs in your index page.
+- Tracks timestamp of when URLs are shortened (in GMT)
 
 ## Analytics
 - Tracks total visits to the shortened URL link
-- Tracks unique visitor + timestamp
+- Tracks unique visitor and timestamp of when they visited (in GMT)
 
 ## Notes
 - This website does not utilize responsive web design 
